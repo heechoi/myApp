@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>단어장</title>
+<link rel="stylesheet" href="jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css"/> 
+<script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script>
+	var db=null;
+	var hiddenId = 0;
+
+	function openDB(){
+		db=window.openDatabase("wordmemo","1.0","단어장","1024*1024");
+	}
+	function createDB(){
+		db.transaction(function(tr){
+			var createSql = "create table if not exists wordmemo(id integer primary key autoincrement, eng text, kor text)";
+			tr.executeSql(createSql);
+		});
+	}
+	function insertDB(){
+		var eng = $("#eng").val();
+		var kor = $("#kor").val();
+		
+		db.transaction(function(tr){
+			var insertSql = "insert into wordmemo(eng,kor) values(?,?)";
+			
+			tr.executeSql(insertSql,[eng,kor],function(tr,ts){
+				$("#status").html("insert sucess");
+			},function(tr,err){
+				$("#status").html("insert err");
+			})
+		});
+	}
+	$(function(){
+		openDB();
+		createDB();
+		
+		$("#storebtn").click(function() {
+			insertDB();
+		})
+	});
+</script>
+</head>
+<body>	
+	<div data-role="page">
+		<div data-role="header" data-position="fixed">
+			<h1></h1>
+			<a href="#store" class="ui-btn-right">저장</a>
+			
+		</div>
+		<div data-role="content">
+		
+		</div>
+	</div>
+	
+	<div data-role="page" id="store">
+		<div data-role="header">
+		<h1></h1>
+			<a href="#" class="ui-btn-right" id="storebtn">저장</a>
+		</div>	
+		<div data-role="content">
+			<label>영어</label>
+			<input type="text" id="eng">
+			<label>한글</label>
+			<input type="text" id="kor">
+			<p id="status"></p>
+		</div>
+	</div>
+</body>
+</html>
